@@ -32,7 +32,7 @@ echo '--- 数据预处理结束 ---'
 # # 进行转换变为支持CFRCNN模型的预训练模型
 # python transorfarm_concatenate_model.py
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 ./dist_train.sh ../config/cascade_rcnn_r50_fpn_70e.py 4
+# CUDA_VISIBLE_DEVICES=0,1,2,3 ./dist_train.sh ../config/cascade_rcnn_r50_fpn_70e.py 4
 # CUDA_VISIBLE_DEVICES=0,1,2,3 ./dist_train.sh ../config/cascade_rcnn_r50_fpn_400.py 4
 # python publish_model.py ../data/work_dirs/cascade_rcnn_r50_fpn_70e/latest.pth ../data/work_dirs/cascade_rcnn_r50_fpn_70e/latest-submit.pth
 # python publish_model.py ../data/work_dirs/cascade_rcnn_r50_fpn_400/latest.pth ../data/work_dirs/cascade_rcnn_r50_fpn_400/latest-submit.pth
