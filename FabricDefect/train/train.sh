@@ -11,11 +11,11 @@ mkdir -p ../data/pretrained
 
 # 拷贝所有疵点图片到defect_Images
 rm -r ../data/defect_Images/*.jpg
-cp ../fabric_data/temp/*/*.jpg ../data/defect_Images/
+cp ../fabric_data/temp/*/*.jpg ../data/template_Images/
 wait
 # 拷贝所有模板图片到template_Images
 rm -r ../data/template_Images/*.jpg
-cp -r ../fabric_data/trgt/*/*.jpg ../data/template_Images/
+cp -r ../fabric_data/trgt/*/*.jpg ../data/defect_Images/
 wait
 # 拷贝所有json文件到json_Files
 rm -r ../data/json_Files/*.json
