@@ -25,23 +25,23 @@ if __name__ == '__main__':
         with open(defect_info_path + "/" + file) as f:
             defect_json = json.load(f)
             image_counter[defect_json['flaw_type']] += 1
-    print(image_counter)
+    print(json.dumps(image_counter, sort_keys=True, indent=4, separators=(', ', ': ')))
     """
     {
-      0: 559, 
-      1: 353, 
-      2: 387, 
-      3: 39, 
-      4: 553, 
-      5: 21, 
-      6: 157, 
-      7: 24, 
-      8: 210, 
-      9: 11, 
-      10: 1, 
-      11: 154, 
-      12: 15, 
-      13: 385, 
-      14: 711
+        "0": 559, 
+        "1": 353, 
+        "2": 387, 
+        "3": 39, 
+        "4": 553, 
+        "5": 21, 
+        "6": 157, 
+        "7": 24, 
+        "8": 210, 
+        "9": 11, 
+        "10": 1, 
+        "11": 154, 
+        "12": 15, 
+        "13": 385, 
+        "14": 711
     }
     """
