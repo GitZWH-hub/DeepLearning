@@ -9,7 +9,8 @@ import torch
 from mmcv import Config
 
 from mmdet import __version__
-from mmdet.apis import (get_root_logger, init_dist, set_random_seed,
+from mmcv.runner import init_dist
+from mmdet.apis import (get_root_logger, set_random_seed,
                         train_detector)
 from mmdet.datasets import build_dataset
 from mmdet.models import build_detector
@@ -54,7 +55,6 @@ def main():
 
     cfg = Config.fromfile(args.config)
     # set cudnn_benchmark
-    print('哈哈哈哈')
     if cfg.get('cudnn_benchmark', False):
         torch.backends.cudnn.benchmark = True
     # update configs according to CLI args
@@ -104,8 +104,7 @@ def main():
         datasets,
         cfg,
         distributed=distributed,
-        validate=args.validate,
-        logger=logger)
+        validate=args.validate)
 
 
 if __name__ == '__main__':
