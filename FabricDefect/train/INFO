@@ -1,3 +1,57 @@
-2021-12-17 13:11:01,554 - mmdet - INFO - Distributed training: True
-2021-12-17 13:11:02,443 - mmdet - WARNING - "imgs_per_gpu" is deprecated in MMDet V2.0. Please use "samples_per_gpu" instead
-2021-12-17 13:11:02,443 - mmdet - WARNING - Automatically set "samples_per_gpu"="imgs_per_gpu"=1 in this experiments
+2021-12-17 15:43:19,492 - mmdet - INFO - Distributed training: True
+2021-12-17 15:43:20,415 - mmdet - WARNING - "imgs_per_gpu" is deprecated in MMDet V2.0. Please use "samples_per_gpu" instead
+2021-12-17 15:43:20,415 - mmdet - WARNING - Automatically set "samples_per_gpu"="imgs_per_gpu"=1 in this experiments
+2021-12-17 15:43:22,931 - mmdet - INFO - load checkpoint from local path: ../data/pretrained/concatenate_coco_pretrained_cascade_rcnn_r50_fpn_20e_20181123-db483a09.pth
+2021-12-17 15:43:23,160 - mmdet - WARNING - The model and loaded state dict do not match exactly
+
+unexpected key in source state_dict: bbox_head.0.fc_cls.weight, bbox_head.0.fc_cls.bias, bbox_head.0.fc_reg.weight, bbox_head.0.fc_reg.bias, bbox_head.0.shared_fcs.0.weight, bbox_head.0.shared_fcs.0.bias, bbox_head.0.shared_fcs.1.weight, bbox_head.0.shared_fcs.1.bias, bbox_head.1.fc_cls.weight, bbox_head.1.fc_cls.bias, bbox_head.1.fc_reg.weight, bbox_head.1.fc_reg.bias, bbox_head.1.shared_fcs.0.weight, bbox_head.1.shared_fcs.0.bias, bbox_head.1.shared_fcs.1.weight, bbox_head.1.shared_fcs.1.bias, bbox_head.2.fc_cls.weight, bbox_head.2.fc_cls.bias, bbox_head.2.fc_reg.weight, bbox_head.2.fc_reg.bias, bbox_head.2.shared_fcs.0.weight, bbox_head.2.shared_fcs.0.bias, bbox_head.2.shared_fcs.1.weight, bbox_head.2.shared_fcs.1.bias
+
+missing keys in source state_dict: roi_head.bbox_head.0.fc_cls.weight, roi_head.bbox_head.0.fc_cls.bias, roi_head.bbox_head.0.fc_reg.weight, roi_head.bbox_head.0.fc_reg.bias, roi_head.bbox_head.0.shared_fcs.0.weight, roi_head.bbox_head.0.shared_fcs.0.bias, roi_head.bbox_head.0.shared_fcs.1.weight, roi_head.bbox_head.0.shared_fcs.1.bias, roi_head.bbox_head.1.fc_cls.weight, roi_head.bbox_head.1.fc_cls.bias, roi_head.bbox_head.1.fc_reg.weight, roi_head.bbox_head.1.fc_reg.bias, roi_head.bbox_head.1.shared_fcs.0.weight, roi_head.bbox_head.1.shared_fcs.0.bias, roi_head.bbox_head.1.shared_fcs.1.weight, roi_head.bbox_head.1.shared_fcs.1.bias, roi_head.bbox_head.2.fc_cls.weight, roi_head.bbox_head.2.fc_cls.bias, roi_head.bbox_head.2.fc_reg.weight, roi_head.bbox_head.2.fc_reg.bias, roi_head.bbox_head.2.shared_fcs.0.weight, roi_head.bbox_head.2.shared_fcs.0.bias, roi_head.bbox_head.2.shared_fcs.1.weight, roi_head.bbox_head.2.shared_fcs.1.bias
+
+2021-12-17 15:43:23,173 - mmdet - INFO - Start running, host: jwwu@ea62410f442b, work_dir: /remote-home/jwwu/projects/github.com/DeepLearning/FabricDefect/data/work_dirs/cascade_rcnn_r50_fpn_70e
+2021-12-17 15:43:23,173 - mmdet - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(ABOVE_NORMAL) Fp16OptimizerHook                  
+(NORMAL      ) CheckpointHook                     
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) DistSamplerSeedHook                
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) Fp16OptimizerHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) DistSamplerSeedHook                
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2021-12-17 15:43:23,174 - mmdet - INFO - workflow: [('train', 1)], max: 12 epochs
+2021-12-17 15:43:23,176 - mmdet - INFO - Checkpoints will be saved to /remote-home/jwwu/projects/github.com/DeepLearning/FabricDefect/data/work_dirs/cascade_rcnn_r50_fpn_70e by HardDiskBackend.
