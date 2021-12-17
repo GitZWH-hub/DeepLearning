@@ -1,6 +1,9 @@
 from __future__ import division
 import argparse
 import os
+import sys
+
+sys.path.insert(0, '../')
 
 import torch
 from mmcv import Config

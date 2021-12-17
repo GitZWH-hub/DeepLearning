@@ -1,4 +1,5 @@
 #!/bin/bash
+echo $(pwd)
 echo '+++ 数据整合开始 +++'
 # 疵点图片文件夹defect_Images
 mkdir -p ../data/defect_Images
