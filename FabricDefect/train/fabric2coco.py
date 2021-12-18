@@ -64,7 +64,7 @@ class Fabric2COCO:
                 json_path = os.path.join(json_dir ,f)
                 try:
                     image = Image.open(img_path)
-                    template = Image.open(img_path)
+                    template = Image.open(template_path)
                     json_path = os.path.join(json_dir, f)
                     w, h = image.size
                     w_i, h_i = template.size
@@ -82,7 +82,7 @@ class Fabric2COCO:
                 
                 # open file and get img.size/bbox/defect_name
                 json_file = pd.read_json(json_path)
-                label = json_file['flaw_type'].to_list()[0]
+                label = json_file['flaw_type'].tolist()[0]
                 bbox = json_file['bbox'].to_dict()
                 
                 if bbox['y0'] < h and bbox['x0'] < w:
@@ -91,12 +91,13 @@ class Fabric2COCO:
                     self.ann_id += 1
                 self.img_id += 1
                 instance = {}
-        print('     共有 {} 张400*400且瑕疵图和模板图对应的图片'.format(j))
+        # print('     共有 {} 张400*400且瑕疵图和模板图对应的图片'.format(j))
         instance['info'] = 'fabric defect'
         instance['license'] = ['none']
         instance['images'] = self.images
         instance['annotations'] = self.annotations
         instance['categories'] = self.categories
+        print(f'instance={instance}')
         return instance
 
     def _init_categories(self):
@@ -182,9 +183,9 @@ if __name__ == "__main__":
     template_dir="../data/template_Images"
     json_dir="../data/json_Files"
     # 1. 获取数据数量
-    print('    瑕疵图: {}'.format(len(glob.glob(defect_dir + '/*.jpg'))))        # 3580
-    print('    模板图: {}'.format(len(glob.glob(template_dir + '/*.jpg'))))      # 3580
-    print('    JSON文件: {}'.format(len(glob.glob(json_dir + '/*.json'))))         # 3580
+    # print('    瑕疵图: {}'.format(len(glob.glob(defect_dir + '/*.jpg'))))        # 3580
+    # print('    模板图: {}'.format(len(glob.glob(template_dir + '/*.jpg'))))      # 3580
+    # print('    JSON文件: {}'.format(len(glob.glob(json_dir + '/*.json'))))         # 3580
     # 2. 判断文件一一对应
     ifmatch(defect_dir, template_dir, json_dir)        # 结果：对应
     # 3. 疵点布中存在空图片数据，删除  4. json文件中bbox数据是否正确 5. 转coco格式 (另外图片大小也不一样，要怎么处理？)

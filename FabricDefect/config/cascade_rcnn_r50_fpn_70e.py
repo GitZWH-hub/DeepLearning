@@ -115,6 +115,11 @@ train_cfg = dict(
         nms_post=2000,
         max_num=2000,
         nms_thr=0.7,
+        max_per_img=1000,
+        nms=dict( # NMS 的配置
+          type='nms',  # NMS 的类别
+          iou_threshold=0.7 # NMS 的阈值
+          ),
         min_bbox_size=0),
     rcnn=[
         dict(
@@ -191,7 +196,7 @@ train_pipeline = [
         multiscale_mode='range',
         keep_ratio=True),
     dict(type='RandomFlip', flip_ratio=0.5),
-    dict(type='Normalize', **img_norm_cfg),
+    # dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
@@ -213,7 +218,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    imgs_per_gpu=1,
+    imgs_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
@@ -251,7 +256,12 @@ log_config = dict(
     ])
 # yapf:enable
 # runtime settings
-total_epochs = 70
+# total_epochs = 70
+total_epochs = 16
+runner = dict(
+    type='EpochBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
+    max_epochs=16,
+    meta=dict()) # runner 总回合数， 对于 IterBasedRunner 使用 `max_iters`
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = '../data/work_dirs/cascade_rcnn_r50_fpn_70e'
