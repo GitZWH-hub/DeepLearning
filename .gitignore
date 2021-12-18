@@ -1,0 +1,5 @@
+FabricDefect/data/
+FabricDefect/fabric_data/
+FabricDefect/train/log*
+FabricDefect/train/.nfs*
+FabricDefect/train/nohup*
