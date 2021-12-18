@@ -1,6 +1,6 @@
 #!/bin/bash
 echo $(pwd)
-echo '+++ 数据整合开始 +++'
+echo '+++ data merge begins +++'
 # 疵点图片文件夹defect_Images
 mkdir -p ../data/defect_Images
 # 模板图片文件夹template_Images
@@ -22,10 +22,10 @@ wait
 # rm -r ../data/json_Files/*.json
 cp ../fabric_data/label_json/*/*.json ../data/json_Files/
 
-echo '--- 数据整合结束 ---'
+echo '--- data merge end ---'
 
 
-echo '+++ 开始数据预处理 +++'
+echo '+++ data preprocess begins +++'
 
 
 # train集
@@ -64,7 +64,7 @@ rm -r ../data/test/json_Files/*.json
 python fabric2coco.py
 # 数据集拆分
 # python splitdata.py
-echo '--- 数据预处理结束 ---'
+echo '--- data processing end ---'
 
 rm -rf ../data/defect_Images
 rm -rf ../data/template_Images

@@ -8,6 +8,7 @@ import pandas as pd
 from tqdm import tqdm
 from PIL import Image
 import glob
+import random
 from shutil import copy
 
 defect_label2name = {
@@ -31,9 +32,6 @@ defect_dir = "../data/defect_Images"
 template_dir="../data/template_Images"
 json_dir="../data/json_Files"
 
-# train_defect_dir = "../data/train/defect_Images"
-# template_dir="../data/template_Images"
-# json_dir="../data/json_Files"
 train_path = "../data/train/"
 eval_path = "../data/eval/"
 test_path = "../data/test/"
@@ -164,15 +162,15 @@ def ifmatch():
     for f in jsonlist:
         json_file.append(f.split('.')[0])
 
-    
     for i in defect_file:
         if i not in template_file or i not in json_file:
-            print("数据集不匹配")
+            print("not match !!")
             break
 
 def save400():
     counts = 0
     filelist = os.listdir(json_dir)
+    random.shuffle(filelist)
     for f in tqdm(filelist):
         img_name = f[:-5] + '.jpg'
         img_path = os.path.join(defect_dir, img_name)
@@ -192,11 +190,11 @@ def save400():
             delete(img_path, json_path, template_path)
             continue
         counts = counts + 1
-    print('    共有 {} 张400*400且瑕疵图和模板图对应的图片'.format(counts))
+    print('    total {} 400*400 imgs'.format(counts))
     return counts
 
 def splitdata(train, eval, test):
-    print('+++ 划分数据集 ', train, ':', eval, ':', test)
+    print('+++ split dataset ', train, ':', eval, ':', test)
     train_len = train/(train + eval + test)
     eval_len = (train + eval)/(train + eval + test)
 
@@ -225,14 +223,14 @@ def splitdata(train, eval, test):
             copy(img_path, test_path + 'defect_Images')
             copy(template_path, test_path + 'template_Images')
             copy(json_path, test_path + 'json_Files')
-    print('--- 划分结束 --- train:{},eval:{},test:{}'.format(train_len, eval_len - train_len, len(filelist) - eval_len))
+    print('--- split end --- train:{},eval:{},test:{}'.format(train_len, eval_len - train_len, len(filelist) - eval_len))
 
 if __name__ == "__main__":
 
     # 1. 获取数据数量
-    print('    瑕疵图: {}'.format(len(glob.glob(defect_dir + '/*.jpg'))))        # 3580
-    print('    模板图: {}'.format(len(glob.glob(template_dir + '/*.jpg'))))      # 3580
-    print('    JSON文件: {}'.format(len(glob.glob(json_dir + '/*.json'))))       # 3580
+    print('    defect images: {}'.format(len(glob.glob(defect_dir + '/*.jpg'))))        # 3580
+    print('    template images: {}'.format(len(glob.glob(template_dir + '/*.jpg'))))      # 3580
+    print('    JSON files: {}'.format(len(glob.glob(json_dir + '/*.json'))))       # 3580
     # 2. 判断文件一一对应，并且只保留400*400和模板图与瑕疵图大小对应的数据
     ifmatch() 
     # 3. 只保留400*400，且模板和瑕疵大小对应的数据(疵点布中存在空图片数据，删除 )
@@ -241,7 +239,7 @@ if __name__ == "__main__":
     splitdata(8, 1, 1)
     # json文件中bbox数据是否正确 
     # 5. 转coco格式
-    print('    转coco数据集')
+    print('    to COCO ing...')
     train_coco = Fabric2COCO()
     train_instance = train_coco.to_coco(train_path+'defect_Images', train_path+'template_Images', train_path+'json_Files')
     final_json = '../data/train/instances_train.json'
@@ -262,5 +260,3 @@ if __name__ == "__main__":
     if os.path.exists(final_json):
         os.remove(final_json)
     test_coco.save_coco_json(test_instance, final_json)
-
-
