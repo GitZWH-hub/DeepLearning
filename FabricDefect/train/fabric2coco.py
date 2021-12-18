@@ -64,7 +64,7 @@ class Fabric2COCO:
                 json_path = os.path.join(json_dir ,f)
                 try:
                     image = Image.open(img_path)
-                    template = Image.open(img_path)
+                    template = Image.open(template_path)
                     json_path = os.path.join(json_dir, f)
                     w, h = image.size
                     w_i, h_i = template.size
