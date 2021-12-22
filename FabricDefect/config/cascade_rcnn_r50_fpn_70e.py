@@ -176,6 +176,11 @@ test_cfg = dict(
         nms_post=1000,
         max_num=1000,
         nms_thr=0.7,
+        nms=dict( # NMS 的配置
+          type='nms',  # NMS 的类别
+          iou_threshold=0.7 # NMS 的阈值
+          ),
+        max_per_img=1000,
         min_bbox_size=0),
     rcnn=dict(
         score_thr=0.001, nms=dict(type='nms', iou_thr=0.5), max_per_img=100),
@@ -189,7 +194,7 @@ img_norm_cfg = dict(
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Concat', template_path=data_root + 'template_Images/'),
+    dict(type='Concat', template_path=data_root + 'train/template_Images/'),
     dict(
         type='Resize',
         img_scale=[(3400, 800), (3400, 1200)],
@@ -201,9 +206,25 @@ train_pipeline = [
     dict(type='DefaultFormatBundle'),
     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
 ]
+eval_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='Concat', template_path=data_root + 'eval/template_Images/'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(3400, 1100),
+        flip=True,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            # dict(type='Normalize', **img_norm_cfg),
+            dict(type='Pad', size_divisor=32),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img']),
+        ])
+]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='Concat', template_path=data_root + 'template_Images/'),
+    dict(type='Concat', template_path=data_root + 'test/template_Images/'),
     dict(
         type='MultiScaleFlipAug',
         img_scale=(3400, 1100),
@@ -222,18 +243,18 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'instances_20211214.json',
-        img_prefix=data_root + 'defect_Images/',
+        ann_file=data_root + 'train/instances_train.json',
+        img_prefix=data_root + 'train/defect_Images/',
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'instances_20211214.json',
-        img_prefix=data_root + 'defect_Images/',
-        pipeline=test_pipeline),
+        ann_file=data_root + 'eval/instances_eval.json',
+        img_prefix=data_root + 'eval/defect_Images/',
+        pipeline=eval_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'instances_20211214.json',
-        img_prefix=data_root + 'defect_Images/',
+        ann_file=data_root + 'test/instances_test.json',
+        img_prefix=data_root + 'test/defect_Images/',
         pipeline=test_pipeline))
 # optimizer
 optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0001)
@@ -249,7 +270,7 @@ lr_config = dict(
 checkpoint_config = dict(interval=5)
 # yapf:disable
 log_config = dict(
-    interval=50,
+    interval=10,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
@@ -257,10 +278,10 @@ log_config = dict(
 # yapf:enable
 # runtime settings
 # total_epochs = 70
-total_epochs = 16
+total_epochs = 5
 runner = dict(
     type='EpochBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
-    max_epochs=16,
+    max_epochs=5,
     meta=dict()) # runner 总回合数， 对于 IterBasedRunner 使用 `max_iters`
 dist_params = dict(backend='nccl')
 log_level = 'INFO'

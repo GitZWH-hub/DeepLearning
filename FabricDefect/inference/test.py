@@ -8,10 +8,9 @@ import mmcv
 import torch
 import torch.distributed as dist
 from mmcv.parallel import MMDataParallel, MMDistributedDataParallel
-from mmcv.runner import get_dist_info, load_checkpoint
+from mmcv.runner import get_dist_info, load_checkpoint, init_dist
 
-from mmdet.apis import init_dist
-from mmdet.core import coco_eval, results2json, wrap_fp16_model
+# from mmdet.core import wrap_fp16_model
 from mmdet.datasets import build_dataloader, build_dataset
 from mmdet.models import build_detector
 
@@ -23,11 +22,18 @@ def single_gpu_test(model, data_loader, show=False):
     prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
+            # for k in data:
+            #     print(f'key={k}')
+            # print(data['img_metas'])
+            for i in range(len(data['img'])):
+                data['img'][i] = data['img'][i].float()
             result = model(return_loss=False, rescale=not show, **data)
         results.append(result)
+        print(results)
+        break
 
-        if show:
-            model.module.show_result(data, result)
+        # if show:
+        #     model.module.show_result(data, result)
 
         batch_size = data['img'][0].size(0)
         for _ in range(batch_size):
@@ -99,23 +105,25 @@ def collect_results(result_part, size, tmpdir=None):
         shutil.rmtree(tmpdir)
         return ordered_results
 
-
+# python test.py ../config/cascade_rcnn_r50_fpn_70e.py ../data/work_dirs/cascade_rcnn_r50_fpn_70e/latest-submi-57a0ab90.pth --out=./out_test
 def parse_args():
     parser = argparse.ArgumentParser(description='MMDet test detector')
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
-    parser.add_argument('--out', help='output result file')
+    parser.add_argument('--out', help='output result file', default='./out.pkl')
     parser.add_argument(
         '--json_out',
         help='output result file name without extension',
-        type=str)
+        type=str,
+        default='./json_out.json')
     parser.add_argument(
         '--eval',
         type=str,
         nargs='+',
+        default='mAP',
         choices=['proposal', 'proposal_fast', 'bbox', 'segm', 'keypoints'],
         help='eval types')
-    parser.add_argument('--show', action='store_true', help='show results')
+    parser.add_argument('--show', action='store_true', help='show results', default='./show')
     parser.add_argument('--tmpdir', help='tmp dir for writing some results')
     parser.add_argument(
         '--launcher',
@@ -161,16 +169,16 @@ def main():
     dataset = build_dataset(cfg.data.test)
     data_loader = build_dataloader(
         dataset,
-        imgs_per_gpu=1,
+        samples_per_gpu=1,
         workers_per_gpu=cfg.data.workers_per_gpu,
         dist=distributed,
         shuffle=False)
 
     # build the model and load checkpoint
     model = build_detector(cfg.model, train_cfg=None, test_cfg=cfg.test_cfg)
-    fp16_cfg = cfg.get('fp16', None)
-    if fp16_cfg is not None:
-        wrap_fp16_model(model)
+    # fp16_cfg = cfg.get('fp16', None)
+    # if fp16_cfg is not None:
+    #     wrap_fp16_model(model)
     checkpoint = load_checkpoint(model, args.checkpoint, map_location='cpu')
     # old versions did not save class info in checkpoints, this walkaround is
     # for backward compatibility
@@ -193,13 +201,17 @@ def main():
         eval_types = args.eval
         if eval_types:
             print('Starting evaluate {}'.format(' and '.join(eval_types)))
-            if eval_types == ['proposal_fast']:
+            if eval_types == 'proposal_fast':
                 result_file = args.out
-                coco_eval(result_file, eval_types, dataset.coco)
+                res = dataset.evaluate(result_file, eval_types)
+                # coco_eval(result_file, eval_types, dataset.coco)
             else:
                 if not isinstance(outputs[0], dict):
-                    result_files = results2json(dataset, outputs, args.out)
-                    coco_eval(result_files, eval_types, dataset.coco)
+                    # result_files = results2json(dataset, outputs, args.out)
+                    # print(outputs.type)
+                    # print(outputs[0])
+                    res = dataset.evaluate(outputs, eval_types)
+                    # coco_eval(result_files, eval_types, dataset.coco)
                 else:
                     for name in outputs[0]:
                         print('\nEvaluating {}'.format(name))
@@ -207,17 +219,19 @@ def main():
                         result_file = args.out + '.{}'.format(name)
                         result_files = results2json(dataset, outputs_,
                                                     result_file)
-                        coco_eval(result_files, eval_types, dataset.coco)
+                        res = dataset.evaluate(result_files, eval_types)
+                        # coco_eval(result_files, eval_types, dataset.coco)
+            print(res)
 
     # Save predictions in the COCO json format
-    if args.json_out and rank == 0:
-        if not isinstance(outputs[0], dict):
-            results2json(dataset, outputs, args.json_out)
-        else:
-            for name in outputs[0]:
-                outputs_ = [out[name] for out in outputs]
-                result_file = args.json_out + '.{}'.format(name)
-                results2json(dataset, outputs_, result_file)
+    # if args.json_out and rank == 0:
+    #     if not isinstance(outputs[0], dict):
+    #         results2json(dataset, outputs, args.json_out)
+    #     else:
+    #         for name in outputs[0]:
+    #             outputs_ = [out[name] for out in outputs]
+    #             result_file = args.json_out + '.{}'.format(name)
+    #             results2json(dataset, outputs_, result_file)
 
 
 if __name__ == '__main__':
