@@ -22,12 +22,12 @@ class Concat(object):
             template_im_name = self.template_path + results['img_info']['filename']  # .split('.')[0] + '/' + template_name
             # img_temp = mmcv.imread(template_im_name)
             img_temp = cv2.imread(template_im_name)
-            print(f'template_im_name={template_im_name}')
-            print(f'template shape = {img_temp.shape}')
-            print(f'img shape = {img_temp.shape}')
-            print('----------------------------')
+            # print(f'template_im_name={template_im_name}')
+            # print(f'template shape = {img_temp.shape}')
+            # print(f'img shape = {img_temp.shape}')
+            # print('----------------------------')
             results['img'] = np.concatenate([results['img'], img_temp], axis=2)
-            print(results['img'].shape)
+            # print(results['img'].shape)
             results['concat'] = True
         else:
             results['img'] = np.concatenate([results['img'], results['concat_img']], axis=2)

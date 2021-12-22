@@ -236,7 +236,7 @@ def main():
 
         print(f'len of outputs = {len(outputs)}')
         print(f'len of annotations = {len(annotations)}')
-        print(f'outputs={outputs}')
+        # print(f'outputs={outputs}')
         # print(f'dataloader')
 
         ############################

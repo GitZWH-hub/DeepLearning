@@ -216,7 +216,7 @@ eval_pipeline = [
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
-            # dict(type='Normalize', **img_norm_cfg),
+            dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img']),
@@ -239,7 +239,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    imgs_per_gpu=2,
+    imgs_per_gpu=1,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
@@ -278,10 +278,10 @@ log_config = dict(
 # yapf:enable
 # runtime settings
 # total_epochs = 70
-total_epochs = 5
+total_epochs = 80
 runner = dict(
-    type='EpochBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
-    max_epochs=5,
+    type='IterBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
+    max_epochs=80,
     meta=dict()) # runner 总回合数， 对于 IterBasedRunner 使用 `max_iters`
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
