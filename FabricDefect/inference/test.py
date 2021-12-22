@@ -4,6 +4,8 @@ import os.path as osp
 import shutil
 import tempfile
 
+import numpy as np
+
 import mmcv
 import torch
 import torch.distributed as dist
@@ -13,6 +15,8 @@ from mmcv.runner import get_dist_info, load_checkpoint, init_dist
 # from mmdet.core import wrap_fp16_model
 from mmdet.datasets import build_dataloader, build_dataset
 from mmdet.models import build_detector
+
+from mmdet.core import eval_map
 
 
 def single_gpu_test(model, data_loader, show=False):
@@ -28,9 +32,9 @@ def single_gpu_test(model, data_loader, show=False):
             for i in range(len(data['img'])):
                 data['img'][i] = data['img'][i].float()
             result = model(return_loss=False, rescale=not show, **data)
-        results.append(result)
-        print(results)
-        break
+        results.extend(result)
+        # print(results)
+        # break
 
         # if show:
         #     model.module.show_result(data, result)
@@ -38,6 +42,9 @@ def single_gpu_test(model, data_loader, show=False):
         batch_size = data['img'][0].size(0)
         for _ in range(batch_size):
             prog_bar.update()
+
+        if len(results) > 64:
+            break
     return results
 
 
@@ -50,6 +57,8 @@ def multi_gpu_test(model, data_loader, tmpdir=None):
         prog_bar = mmcv.ProgressBar(len(dataset))
     for i, data in enumerate(data_loader):
         with torch.no_grad():
+            for i in range(len(data['img'])):
+                data['img'][i] = data['img'][i].float()
             result = model(return_loss=False, rescale=True, **data)
         results.append(result)
 
@@ -199,29 +208,76 @@ def main():
         print('\nwriting results to {}'.format(args.out))
         mmcv.dump(outputs, args.out)
         eval_types = args.eval
-        if eval_types:
-            print('Starting evaluate {}'.format(' and '.join(eval_types)))
-            if eval_types == 'proposal_fast':
-                result_file = args.out
-                res = dataset.evaluate(result_file, eval_types)
-                # coco_eval(result_file, eval_types, dataset.coco)
-            else:
-                if not isinstance(outputs[0], dict):
-                    # result_files = results2json(dataset, outputs, args.out)
-                    # print(outputs.type)
-                    # print(outputs[0])
-                    res = dataset.evaluate(outputs, eval_types)
-                    # coco_eval(result_files, eval_types, dataset.coco)
-                else:
-                    for name in outputs[0]:
-                        print('\nEvaluating {}'.format(name))
-                        outputs_ = [out[name] for out in outputs]
-                        result_file = args.out + '.{}'.format(name)
-                        result_files = results2json(dataset, outputs_,
-                                                    result_file)
-                        res = dataset.evaluate(result_files, eval_types)
-                        # coco_eval(result_files, eval_types, dataset.coco)
-            print(res)
+        annotations = []
+        gt_bboxes = []
+        gt_labels = []
+        gt_ignore = []
+        for i in range(len(dataset)):
+            ann = dataset.get_ann_info(i)
+            annotations.append(ann)
+            bboxes = ann['bboxes']
+            labels = ann['labels']
+            # if 'bboxes_ignore' in ann:
+            #     ignore = np.concatenate([
+            #         np.zeros(bboxes.shape[0], dtype=np.bool),
+            #         np.ones(ann['bboxes_ignore'].shape[0], dtype=np.bool)
+            #     ])
+            #     gt_ignore.append(ignore)
+            #     bboxes = np.vstack([bboxes, ann['bboxes_ignore']])
+            #     labels = np.concatenate([labels, ann['labels_ignore']])
+            gt_bboxes.append(bboxes)
+            gt_labels.append(labels)
+        if not gt_ignore:
+            gt_ignore = None
+
+        dataset_name = dataset.CLASSES
+
+        ############################
+
+        print(f'len of outputs = {len(outputs)}')
+        print(f'len of annotations = {len(annotations)}')
+        print(f'outputs={outputs}')
+        # print(f'dataloader')
+
+        ############################
+
+        # print(f'outputs={outputs}')
+        oo = mmcv.load(args.out)
+        # print(f'oo={oo}')
+        annotations = annotations[:len(oo)]
+        map = eval_map(
+            outputs,
+            annotations,
+            # gt_bboxes,
+            # gt_labels,
+            # dataset=dataset_name,
+            # print_summary=True
+        )
+
+        # print(f'map={map}')
+        # if eval_types:
+        #     print('Starting evaluate {}'.format(' and '.join(eval_types)))
+        #     if eval_types == 'proposal_fast':
+        #         result_file = args.out
+        #         res = dataset.evaluate(result_file, eval_types)
+        #         # coco_eval(result_file, eval_types, dataset.coco)
+        #     else:
+        #         if not isinstance(outputs[0], dict):
+        #             # result_files = results2json(dataset, outputs, args.out)
+        #             # print(outputs.type)
+        #             # print(outputs[0])
+        #             res = dataset.evaluate(outputs, eval_types)
+        #             # coco_eval(result_files, eval_types, dataset.coco)
+        #         else:
+        #             for name in outputs[0]:
+        #                 print('\nEvaluating {}'.format(name))
+        #                 outputs_ = [out[name] for out in outputs]
+        #                 result_file = args.out + '.{}'.format(name)
+        #                 result_files = results2json(dataset, outputs_,
+        #                                             result_file)
+        #                 res = dataset.evaluate(result_files, eval_types)
+        #                 # coco_eval(result_files, eval_types, dataset.coco)
+        #     print(res)
 
     # Save predictions in the COCO json format
     # if args.json_out and rank == 0:
