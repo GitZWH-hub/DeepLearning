@@ -43,8 +43,8 @@ def single_gpu_test(model, data_loader, show=False):
         for _ in range(batch_size):
             prog_bar.update()
 
-        if len(results) > 64:
-            break
+        # if len(results) > 64:
+        #     break
     return results
 
 

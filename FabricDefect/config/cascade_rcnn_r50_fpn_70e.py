@@ -280,12 +280,12 @@ log_config = dict(
 # total_epochs = 70
 total_epochs = 80
 runner = dict(
-    type='IterBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
+    type='EpochBasedRunner',  # 将使用的 runner 的类别 (例如 IterBasedRunner 或 EpochBasedRunner)。
     max_epochs=80,
     meta=dict()) # runner 总回合数， 对于 IterBasedRunner 使用 `max_iters`
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
 work_dir = '../data/work_dirs/cascade_rcnn_r50_fpn_70e'
-load_from = '../data/pretrained/concatenate_coco_pretrained_cascade_rcnn_r50_fpn_20e_20181123-db483a09.pth'
+load_from = '../data/work_dirs/1222/epoch_80.pth'
 resume_from = None
 workflow = [('train', 1)]
